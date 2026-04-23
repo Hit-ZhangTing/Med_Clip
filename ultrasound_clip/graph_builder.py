@@ -1,20 +1,18 @@
 import torch
 import dgl
-from .tag_vocab import DIAGNOSIS_VOCAB, DESCRIPTOR_VOCAB, UNK_DIAG_ID, UNK_DESC_ID
+from .tag_vocab import (
+    DIAGNOSIS_VOCAB,
+    DESCRIPTOR_VOCAB,
+    UNK_DIAG_ID,
+    UNK_DESC_ID,
+    TASK_FIELD_MAP,
+    DESCRIPTOR_TASK_IDS,
+    TASKS,
+)
 
 def build_single_sample_graph(full_data_dict, image_key):
     rec = full_data_dict.get(image_key, {})
-    task_keys = [
-        "Diagnosis",
-        "Body_system_level",
-        "Organ_level",
-        "Shape",
-        "Margins", 
-        "Echogenicity",
-        "InternalCharacteristics",
-        "PosteriorAcoustics",
-        "Vascularity",
-    ]
+    task_keys = [TASK_FIELD_MAP["task1"]] + [TASK_FIELD_MAP[tk] for tk in DESCRIPTOR_TASK_IDS]
     diagnosis = rec.get("Diagnosis", [])
     if not isinstance(diagnosis, list):
         diagnosis = [diagnosis] if diagnosis else []
@@ -61,10 +59,8 @@ def build_single_sample_graph(full_data_dict, image_key):
         else:
             diag_tid = [UNK_DIAG_ID]
         if len(descriptor_list) > 0:
-            
-            from .tag_vocab import TASKS
             tag2task = {}
-            for tk in ["task2","task3","task4","task5","task6","task7","task8","task9"]:
+            for tk in DESCRIPTOR_TASK_IDS:
                 for t in TASKS[tk]:
                     if t not in tag2task:
                         tag2task[t] = tk
@@ -87,9 +83,8 @@ def build_single_sample_graph(full_data_dict, image_key):
 
 
     diag_tid = [DIAGNOSIS_VOCAB.get(d, UNK_DIAG_ID) for d in diagnosis_list] if len(diagnosis_list)>0 else [UNK_DIAG_ID]
-    from .tag_vocab import TASKS
     tag2task = {}
-    for tk in ["task2","task3","task4","task5","task6","task7","task8","task9"]:
+    for tk in DESCRIPTOR_TASK_IDS:
         for t in TASKS[tk]:
             if t not in tag2task:
                 tag2task[t] = tk

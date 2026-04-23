@@ -1,7 +1,7 @@
 """
 生成 UDAF 语义先验相似度矩阵。
 
-从 full_data.json 中读取 364K 条记录，对 9 个任务维度分别计算标签间的
+从 full_data.json 中读取记录，对 5 个任务维度分别计算标签间的
 共现 Jaccard 相似度，输出为 SimilarityMatrixProcessor 所需的 .npz 格式。
 
 用法:
@@ -17,14 +17,10 @@ from pathlib import Path
 
 TASK_KEYS = {
     1: "Diagnosis",
-    2: "Body_system_level",
-    3: "Organ_level",
-    4: "Shape",
-    5: "Margins",
-    6: "Echogenicity",
-    7: "InternalCharacteristics",
-    8: "PosteriorAcoustics",
-    9: "Vascularity",
+    2: "Shape",
+    3: "Margins",
+    4: "Position",
+    5: "Size",
 }
 
 
@@ -101,7 +97,7 @@ def main():
         diag_ok = np.allclose(np.diag(matrix), 1.0)
         print(f"  Diagonal check: {'✅ PASS' if diag_ok else '❌ FAIL'}")
 
-    print("\n[SUCCESS] 全部 9 个相似度矩阵生成完毕！")
+    print("\n[SUCCESS] 全部 5 个相似度矩阵生成完毕！")
 
 
 if __name__ == "__main__":

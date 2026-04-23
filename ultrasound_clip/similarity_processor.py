@@ -4,6 +4,7 @@ import torch
 import json
 import os
 from pathlib import Path
+from .tag_vocab import TASK_FIELD_MAP
 
 def load_matrix_from_upper_triangle(filename):
     data = np.load(filename, allow_pickle=True)
@@ -24,15 +25,18 @@ class SimilarityMatrixProcessor:
         self.sim_matrices = {}
         self.tag_labels = {}
         
-        for task_id in range(1, 10):
+        self.task_ids = sorted(int(task.replace("task", "")) for task in TASK_FIELD_MAP.keys())
+        self.num_tasks = len(self.task_ids)
+
+        for task_id in self.task_ids:
             matrix_file = self.similarity_matrices_dir / f"task{task_id}_tag_normalized.npz"
             
             if matrix_file.exists():
                 try:
                     
                     matrix, labels = load_matrix_from_upper_triangle(matrix_file)
-                    self.sim_matrices[task_id-1] = matrix
-                    self.tag_labels[task_id-1] = labels if labels is not None else []
+                    self.sim_matrices[task_id - 1] = matrix
+                    self.tag_labels[task_id - 1] = labels if labels is not None else []
                 except Exception as e:
                     
                     raise
@@ -40,7 +44,7 @@ class SimilarityMatrixProcessor:
                 raise FileNotFoundError(f"similarity matrix file not found: {matrix_file}")
 
         self.tag_indices = {}
-        for task_id in range(9):
+        for task_id in range(self.num_tasks):
             tag_list = list(self.tag_labels[task_id])
             self.tag_indices[task_id] = {tag: idx for idx, tag in enumerate(tag_list)}
         
@@ -60,17 +64,7 @@ class SimilarityMatrixProcessor:
             else:
                 self.full_data_dict_alt[media_name + '.jpg'] = record
         
-        self.task_keys = {
-            "task1":"Diagnosis",
-            "task2":"Body_system_level",
-            "task3":"Organ_level",
-            "task4":"Shape",
-            "task5":"Margins",
-            "task6":"Echogenicity",
-            "task7":"InternalCharacteristics",
-            "task8":"PosteriorAcoustics",
-            "task9":"Vascularity"
-        }
+        self.task_keys = TASK_FIELD_MAP
 
     
     def get_tags_for_image(self, image_key):
@@ -81,7 +75,7 @@ class SimilarityMatrixProcessor:
         
         if record is None:
             
-            return {i: [] for i in range(9)}
+            return {i: [] for i in range(self.num_tasks)}
         
         image_tags = {}
         for i, (task_key, task_name) in enumerate(self.task_keys.items()):
@@ -140,7 +134,7 @@ class SimilarityMatrixProcessor:
             for j in range(i + 1, batch_size):
 
                 task_similarities = []
-                for task_id in range(9):
+                for task_id in range(self.num_tasks):
                     tags_i = batch_tags[i][task_id]
                     tags_j = batch_tags[j][task_id]
 
@@ -180,7 +174,7 @@ class SimilarityMatrixProcessor:
             similarity_matrix[i, i] = 1.0
             for j in range(i + 1, batch_size):
                 task_similarities = []
-                for task_id in range(9):
+                for task_id in range(self.num_tasks):
                     tags_i = batch_tags[i][task_id]
                     tags_j = batch_tags[j][task_id]
                     

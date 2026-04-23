@@ -47,8 +47,7 @@ with open("dataset/full_data.json", "r", encoding="utf-8") as f:
 
 print(f"总记录数: {len(full_data)}")
 
-task_keys = ["Diagnosis","Body_system_level","Organ_level","Shape","Margins",
-             "Echogenicity","InternalCharacteristics","PosteriorAcoustics","Vascularity"]
+task_keys = ["Diagnosis", "Shape", "Margins", "Position", "Size"]
 
 # 统计每个 task 有多少样本有标签
 for tk in task_keys:

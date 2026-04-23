@@ -27,7 +27,7 @@ class UltrasoundCLIPDataset(Dataset):
         image_tensor:   [3, 224, 224]  — CLIP 预处理后的图像
         input_ids:      [max_length]   — BERT tokenizer 输出的 token IDs
         attention_mask: [max_length]   — BERT attention mask
-        record:         dict           — full_data.json 中的完整记录（含 9 个任务标签）
+        record:         dict           — full_data.json 中的完整记录（含 5 个任务标签）
         image_name:     str            — 图像文件名（用于 similarity_processor 查询）
     """
 

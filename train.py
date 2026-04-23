@@ -201,12 +201,32 @@ def main():
     # ===========================================================
     #  4. 构建数据集 & DataLoader
     # ===========================================================
+    def _pick_existing_path(candidates, desc):
+        for p in candidates:
+            if os.path.exists(p):
+                return p
+        raise FileNotFoundError(f"{desc} not found. checked: {candidates}")
+
     dataset_dir = args.dataset_dir
-    images_dir = os.path.join(dataset_dir, "images")
-    full_data_path = os.path.join(dataset_dir, "full_data.json")
+    images_dir = _pick_existing_path(
+        [os.path.join(dataset_dir, "images"), os.path.join(dataset_dir, "image")],
+        "images directory",
+    )
+    full_data_path = _pick_existing_path(
+        [os.path.join(dataset_dir, "full_data.json")],
+        "full_data json",
+    )
+    train_jsonl = _pick_existing_path(
+        [os.path.join(dataset_dir, "train.jsonl")],
+        "train split jsonl",
+    )
+    val_jsonl = _pick_existing_path(
+        [os.path.join(dataset_dir, "valid.jsonl"), os.path.join(dataset_dir, "val.jsonl")],
+        "validation split jsonl",
+    )
 
     train_dataset = UltrasoundCLIPDataset(
-        jsonl_path=os.path.join(dataset_dir, "train.jsonl"),
+        jsonl_path=train_jsonl,
         images_dir=images_dir,
         full_data_path=full_data_path,
         preprocess=preprocess,
@@ -215,7 +235,7 @@ def main():
         is_train=True,  # 启用数据增强
     )
     val_dataset = UltrasoundCLIPDataset(
-        jsonl_path=os.path.join(dataset_dir, "valid.jsonl"),
+        jsonl_path=val_jsonl,
         images_dir=images_dir,
         full_data_path=full_data_path,
         preprocess=preprocess,
